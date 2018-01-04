@@ -7,7 +7,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "sharp11": "^2.0.2",
+    "underscore": "^1.8.3"
   },
   "engines": {
     "node": "4.0.0"
