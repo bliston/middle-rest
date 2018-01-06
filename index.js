@@ -122,22 +122,22 @@ function nextMelodyNote(leapStartNoteName, leapEndNoteName, prevMelodyNoteName, 
   	console.log(leapInScaleSteps)
   	var leapDirectionDown = leapStartNote.value() > leapEndNote.value()  
 
-	var lastNoteInScale = scaleToTraverse.nearest(lastMelodyNote)
-	traversableScale = scaleToTraverse.traverse(lastNoteInScale)
+	var lastMelodyNoteAdjustedToScale = scaleToTraverse.nearest(lastMelodyNote)
+	traversableScale = scaleToTraverse.traverse(lastMelodyNoteAdjustedToScale)
 
-	var scaleSnapDirectionDown = lastMelodyNote.value() > lastNoteInScale.value()
+	var lastMelodyNoteScaleSnapDirectionDown = lastMelodyNote.value() > lastMelodyNoteAdjustedToScale.value()
 
-	var scaleSnapZero = lastMelodyNote.value() == lastNoteInScale.value()
+	var lastMelodyNoteIsInScale = lastMelodyNote.value() == lastMelodyNoteAdjustedToScale.value()
 
 	var signedLeapInScaleSteps = leapInScaleSteps * (leapDirectionDown ? -1 : 1)
 	
 	var isLastNoteInScaleSufficientWithoutShift = false
 	
 	// take one away from shift if the scale note snap agrees with the leap direction
-	if(!scaleSnapZero && signedLeapInScaleSteps > 0 && !scaleSnapDirectionDown) {
+	if(!lastMelodyNoteIsInScale && signedLeapInScaleSteps > 0 && !lastMelodyNoteScaleSnapDirectionDown) {
 		signedLeapInScaleSteps--
 	}
-	else if(!scaleSnapZero && signedLeapInScaleSteps < 0 && scaleSnapDirectionDown) {
+	else if(!lastMelodyNoteIsInScale && signedLeapInScaleSteps < 0 && lastMelodyNoteScaleSnapDirectionDown) {
 		signedLeapInScaleSteps++
 	}
 
