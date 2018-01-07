@@ -14,6 +14,7 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/public'))
 app.use(express.json())       // to support JSON-encoded bodies
 app.use(express.urlencoded())
+app.use(express.json())
 
 app.get('/midi-thru', function(request, response) {
 	var midi = request.query.midi
@@ -24,33 +25,33 @@ app.get('/next-melody-note', function(request, response) {
 	response.json(nextMelodyNoteQuery(request, response))
 })
 
-app.get('/next-middle-chord-notes', function(request, response) {
+app.post('/next-middle-chord-notes', function(request, response) {
 	response.json(nextMiddleChordNotesQuery(request, response))
 })
 
-app.get('/next-middle-melody-note', function(request, response) {
+app.post('/next-middle-melody-note', function(request, response) {
 	response.json(nextMiddleMelodyNoteQuery(request, response))
 })
 
 function nextMiddleChordNotesQuery(request, response) {
 	var middleCodeResults = middleCodeSharp11Results(
-			request.query.code
+			request.body.code
 		)
-	var chordNotes = chordNoteValues(middleCodeResults[request.query.index % middleCodeResults.length].chord)
+	var chordNotes = chordNoteValues(middleCodeResults[request.body.index % middleCodeResults.length].chord)
 	return {midi : chordNotes }
 	
 }
 
 function nextMiddleMelodyNoteQuery(request, response) {
 	var middleCodeResults = middleCodeSharp11Results(
-		request.query.code
+		request.body.code
 	)
 	melodyResult = nextMelodyNote(
-		request.query.leapstart_notename
-		, request.query.leapend_notename
-		, request.query.prev_melody_notename
-		, middleCodeResults[request.query.index % middleCodeResults.length].scale.key
-		, middleCodeResults[request.query.index % middleCodeResults.length].scale.name
+		request.body.leapstart_notename
+		, request.body.leapend_notename
+		, request.body.prev_melody_notename
+		, middleCodeResults[request.body.index % middleCodeResults.length].scale.key
+		, middleCodeResults[request.body.index % middleCodeResults.length].scale.name
 	)
 	return {midi: [melodyResult.nextMelodyNoteVal]} 
 
