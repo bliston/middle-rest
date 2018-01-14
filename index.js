@@ -14,7 +14,6 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/public'))
 app.use(express.json())       // to support JSON-encoded bodies
 app.use(express.urlencoded())
-app.use(express.json())
 
 app.get('/midi-thru', function(request, response) {
 	var midi = request.query.midi
@@ -98,9 +97,21 @@ function middleCodeStringResults(code) {
 }
 
 function chordNoteValues(chord) {
-	return _.map(chord.chord, function(note){
+	return fitChordInOctaveAndDropBass(chord, defaultChordOctave)
+}
+
+function fitChordInOctaveAndDropBass(chord, octave) {
+	notes = _.map(chord.chord, function(note, i){
+		note.octave = octave
 		return note.value()
 	})
+	bassNote = chord.chord[0]
+	bassNote.octave = octave - 1
+	notes.unshift(bassNote.value())
+	notes.sort()
+	return notes
+
+
 }
 
 function nextMelodyNote(leapStartNoteName, leapEndNoteName, prevMelodyNoteName, scaleToTraverseKeyName, scaleToTraverseName) {
@@ -151,7 +162,7 @@ function countWhiteNotesBetweenNotes(note1, note2) {
 	var orderedNotes = _.sortBy([note1, note2], function(note){ return note.value() })
 	var betweenNoteValues = _.range(orderedNotes[0].value(), orderedNotes[1].value())
 	var noteValsBetween = _.countBy(betweenNoteValues, function(val){return s11.note.fromValue(val).clean().accidental === 'n' ? 'natural' : 'unatural' })
-	return noteValsBetween.natural
+	return noteValsBetween.natural ? noteValsBetween.natural : 0
 }
 
 app.listen(app.get('port'), function() {
