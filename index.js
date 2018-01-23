@@ -24,6 +24,10 @@ app.get('/next-melody-note', function(request, response) {
 	response.json(nextMelodyNoteQuery(request, response))
 })
 
+app.post('/middle-code-to-middle-json', function(request, response) {
+	response.json(middleQuery(request, response))
+})
+
 app.post('/next-middle-chord-notes', function(request, response) {
 	response.json(nextMiddleChordNotesQuery(request, response))
 })
@@ -31,6 +35,15 @@ app.post('/next-middle-chord-notes', function(request, response) {
 app.post('/next-middle-melody-note', function(request, response) {
 	response.json(nextMiddleMelodyNoteQuery(request, response))
 })
+
+function middleQuery(request, response) {
+	var middleCodeResults = middleResults(
+			request.body.code
+		)
+	console.log(middleCodeResults)
+	return {result : middleCodeResults }
+	
+}
 
 function nextMiddleChordNotesQuery(request, response) {
 	var middleCodeResults = middleCodeSharp11Results(
@@ -66,6 +79,22 @@ function nextMelodyNoteQuery(request, response) {
 		)
 }
 
+function middleResults(code) {
+	// C(C:Major)|E7sus4(A:harmonic minor)
+	return _.map(middleCodeStringResults(code), function(middleCodeStringResult){
+		return {
+			'chordNotes' : chordNoteValues(
+				s11.chord.create(
+					middleCodeStringResult.chordName
+					, defaultChordOctave))
+			,'scaleNotes' : scaleSpace(
+				s11.scale.create(
+					middleCodeStringResult.scaleKeyName
+					, middleCodeStringResult.scaleName))
+		}
+	})
+}
+
 function middleCodeSharp11Results(code) {
 	// C(C:Major)|E7sus4(A:harmonic minor)
 	return _.map(middleCodeStringResults(code), function(middleCodeStringResult){
@@ -94,6 +123,23 @@ function middleCodeStringResults(code) {
 			,'scaleName' : scaleName
 		}
 	})
+}
+
+function scaleSpace(scale) {
+	var scaleArray = _.filter(
+		_.range(0,127)
+			, function(val) {
+				var include
+				try{
+					include = scale.contains(s11.note.fromValue(val))
+				}
+				catch(err){
+					include = false
+				}
+				return include
+			}
+		)
+	return scaleArray
 }
 
 function chordNoteValues(chord) {
